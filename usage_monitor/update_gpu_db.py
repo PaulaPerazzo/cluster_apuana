@@ -197,6 +197,11 @@ except Exception as e:
 
 
 try:
+    ssh_client = paramiko.SSHClient()
+    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh_client.connect(manager_ip, username=user, password=password)
+    print('connected to manager')
+
     current_date = datetime.now().date()
     zero_time = datetime.combine(current_date, datetime.min.time())
     zero_time = zero_time.strftime('%Y-%m-%dT%H:%M:%S')
@@ -220,6 +225,8 @@ try:
             ocupacao = float(data_parts[1].replace('%', ''))
             indisponibilidade = float(data_parts[2].replace('%', ''))
             ociosidade = float(data_parts[4].replace('%', ''))
+
+            print(ocupacao, indisponibilidade, ociosidade)
             
             today = datetime.now().date()
 
