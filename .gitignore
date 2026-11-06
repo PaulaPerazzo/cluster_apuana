@@ -27,6 +27,7 @@ update_manager_db_script.sh
 
 user_management/advisors.csv
 user_management/key.json
+user_management/key.json
 
 out.log
 old_files
