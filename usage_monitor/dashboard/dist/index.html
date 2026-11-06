@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apuana HPC Cluster | Monitoramento & Telemetria</title>
+  
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js para gráficos -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .glass {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .light .glass {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen transition-colors duration-200 selection:bg-indigo-500 selection:text-white">
+
+  <!-- Dados embutidos diretamente no HTML para carregamento instantâneo offline/GitHub Pages -->
+  <script id="cluster-raw-data" type="application/json">
+    {"generated_at": "06/11/2026 15:56:06", "cluster_name": "Apuana HPC Cluster", "summary": {"total_nodes": 10, "active_nodes": 9, "down_nodes": 1, "total_gpus": 36, "active_gpus": 24, "running_jobs": 14, "pending_jobs": 4, "total_power_kw": 7.18, "avg_power_gpu_w": 199.4, "avg_temp_gpu_c": 63.7, "jobs_today": 42, "overall_status": "operational"}, "nodes": [{"hostname": "cluster-node1", "state": "alloc", "status_label": "Alocado", "status_color": "blue", "last_updated": "2026-11-06 15:56:06", "gpus": [{"name": "NVIDIA A100-SXM4-40GB #0", "temperature": 51, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 255, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #1", "temperature": 58, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 275, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #2", "temperature": 65, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 295, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #3", "temperature": 72, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 315, "power_limit_watts": 400}]}, {"hostname": "cluster-node2", "state": "alloc", "status_label": "Alocado", "status_color": "blue", "last_updated": "2026-11-06 15:56:06", "gpus": [{"name": "NVIDIA A100-SXM4-40GB #0", "temperature": 54, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 270, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #1", "temperature": 61, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 290, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #2", "temperature": 68, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 310, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #3", "temperature": 75, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 240, "power_limit_watts": 400}]}, {"hostname": "cluster-node3", "state": "alloc", "status_label": "Alocado", "status_color": "blue", "last_updated": "2026-11-06 15:56:06", "gpus": [{"name": "NVIDIA A100-SXM4-40GB #0", "temperature": 57, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 285, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #1", "temperature": 64, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 305, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #2", "temperature": 71, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 325, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #3", "temperature": 78, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 255, "power_limit_watts": 400}]}, {"hostname": "cluster-node4", "state": "idle", "status_label": "Livre", "status_color": "emerald", "last_updated": "2026-11-06 15:56:06", "gpus": [{"name": "NVIDIA A100-SXM4-40GB #0", "temperature": 60, "memory_used": 1638, "memory_total": 40960, "memory_percent": 4, "power_watts": 32, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #1", "temperature": 67, "memory_used": 1638, "memory_total": 40960, "memory_percent": 4, "power_watts": 37, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #2", "temperature": 74, "memory_used": 1638, "memory_total": 40960, "memory_percent": 4, "power_watts": 42, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #3", "temperature": 49, "memory_used": 1638, "memory_total": 40960, "memory_percent": 4, "power_watts": 32, "power_limit_watts": 400}]}, {"hostname": "cluster-node5", "state": "alloc", "status_label": "Alocado", "status_color": "blue", "last_updated": "2026-11-06 15:56:06", "gpus": [{"name": "NVIDIA A100-SXM4-40GB #0", "temperature": 63, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 315, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #1", "temperature": 70, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 245, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #2", "temperature": 77, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 265, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #3", "temperature": 52, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 285, "power_limit_watts": 400}]}, {"hostname": "cluster-node6", "state": "alloc", "status_label": "Alocado", "status_color": "blue", "last_updated": "2026-11-06 15:56:06", "gpus": [{"name": "NVIDIA A100-SXM4-40GB #0", "temperature": 66, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 240, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #1", "temperature": 73, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 260, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #2", "temperature": 48, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 280, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #3", "temperature": 55, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 300, "power_limit_watts": 400}]}, {"hostname": "cluster-node7", "state": "alloc", "status_label": "Alocado", "status_color": "blue", "last_updated": "2026-11-06 15:56:06", "gpus": [{"name": "NVIDIA A100-SXM4-40GB #0", "temperature": 69, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 255, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #1", "temperature": 76, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 275, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #2", "temperature": 51, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 295, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #3", "temperature": 58, "memory_used": 33587, "memory_total": 40960, "memory_percent": 82, "power_watts": 315, "power_limit_watts": 400}]}, {"hostname": "cluster-node8", "state": "idle", "status_label": "Livre", "status_color": "emerald", "last_updated": "2026-11-06 15:56:06", "gpus": [{"name": "NVIDIA A100-SXM4-40GB #0", "temperature": 72, "memory_used": 1638, "memory_total": 40960, "memory_percent": 4, "power_watts": 32, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #1", "temperature": 79, "memory_used": 1638, "memory_total": 40960, "memory_percent": 4, "power_watts": 37, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #2", "temperature": 54, "memory_used": 1638, "memory_total": 40960, "memory_percent": 4, "power_watts": 42, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #3", "temperature": 61, "memory_used": 1638, "memory_total": 40960, "memory_percent": 4, "power_watts": 32, "power_limit_watts": 400}]}, {"hostname": "cluster-node9", "state": "idle", "status_label": "Livre", "status_color": "emerald", "last_updated": "2026-11-06 15:56:06", "gpus": [{"name": "NVIDIA A100-SXM4-40GB #0", "temperature": 75, "memory_used": 1638, "memory_total": 40960, "memory_percent": 4, "power_watts": 32, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #1", "temperature": 50, "memory_used": 1638, "memory_total": 40960, "memory_percent": 4, "power_watts": 37, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #2", "temperature": 57, "memory_used": 1638, "memory_total": 40960, "memory_percent": 4, "power_watts": 42, "power_limit_watts": 400}, {"name": "NVIDIA A100-SXM4-40GB #3", "temperature": 64, "memory_used": 1638, "memory_total": 40960, "memory_percent": 4, "power_watts": 32, "power_limit_watts": 400}]}, {"hostname": "cluster-node10", "state": "down", "status_label": "Inativo", "status_color": "rose", "last_updated": "2026-11-06 15:56:06", "gpus": []}], "queue": [{"jobid": 10421, "name": "train_bert_large", "user": "mpps", "state": "RUNNING", "state_badge": "R", "time": "12:45:10", "nodelist": "cluster-node[1-2]"}, {"jobid": 10422, "name": "deep_rl_sim", "user": "lucasf", "state": "RUNNING", "state_badge": "R", "time": "08:12:00", "nodelist": "cluster-node3"}, {"jobid": 10423, "name": "docking_screening", "user": "carla_bio", "state": "RUNNING", "state_badge": "R", "time": "04:30:15", "nodelist": "cluster-node5"}, {"jobid": 10424, "name": "vit_inference", "user": "andre_cv", "state": "RUNNING", "state_badge": "R", "time": "01:15:40", "nodelist": "cluster-node6"}, {"jobid": 10425, "name": "llama3_fine_tune", "user": "rodrigo_nlp", "state": "PENDING", "state_badge": "PD", "time": "00:00:00", "nodelist": "None (Resources)"}, {"jobid": 10426, "name": "quantum_chem_opt", "user": "juliana_qc", "state": "PENDING", "state_badge": "PD", "time": "00:00:00", "nodelist": "None (Priority)"}], "filesystem": [{"mounted": "/home", "filesystem": "/dev/sda1", "size": "10TB", "used": "7.2TB", "avail": "2.8TB", "usepercent": 72}, {"mounted": "/data", "filesystem": "/dev/sdb1", "size": "48TB", "used": "31TB", "avail": "17TB", "usepercent": 65}, {"mounted": "/scratch", "filesystem": "/dev/nvme0n1", "size": "8TB", "used": "3.1TB", "avail": "4.9TB", "usepercent": 39}], "utilization_history": {"labels": ["31/10", "01/11", "02/11", "03/11", "04/11", "05/11", "06/11"], "occupation": [78.5, 82.1, 74.3, 89.0, 91.2, 85.4, 88.0], "idle": [18.2, 14.5, 22.0, 8.5, 6.1, 11.2, 9.5], "unavailability": [3.3, 3.4, 3.7, 2.5, 2.7, 3.4, 2.5]}, "daily_jobs_history": {"labels": ["24/10", "25/10", "26/10", "27/10", "28/10", "29/10", "30/10", "31/10", "01/11", "02/11", "03/11", "04/11", "05/11", "06/11"], "cpu_jobs": [18, 22, 15, 28, 30, 24, 19, 25, 34, 40, 31, 28, 33, 26], "gpu_jobs": [12, 16, 14, 20, 25, 18, 15, 21, 28, 32, 27, 22, 29, 21], "total_jobs": [30, 38, 29, 48, 55, 42, 34, 46, 62, 72, 58, 50, 62, 47]}, "nodes_power_temp": {"labels": ["node1", "node2", "node3", "node4", "node5", "node6", "node7", "node8", "node9", "node10"], "power_watts": [950, 980, 920, 140, 990, 940, 960, 150, 145, 0], "avg_temp": [68, 71, 66, 38, 73, 69, 70, 39, 37, 0]}}
+  </script>
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-50 glass border-b border-slate-800/80 px-4 lg:px-8 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <i data-lucide="cpu" class="w-6 h-6 text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-lg tracking-tight">Cluster Apuana</h1>
+            <span id="badge-cluster-status" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Operacional
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Telemetria de Alta Performance (HPC & AI)</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-4">
+        <!-- Timestamp da Sincronização -->
+        <div class="hidden sm:flex items-center space-x-1.5 text-xs text-slate-400 bg-slate-900/60 px-3 py-1.5 rounded-lg border border-slate-800">
+          <i data-lucide="clock" class="w-3.5 h-3.5 text-indigo-400"></i>
+          <span>Atualizado em: <strong id="timestamp-updated" class="text-slate-200">--:--</strong></span>
+        </div>
+
+        <!-- Modo Escuro / Claro -->
+        <button id="theme-toggle" class="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition-colors" title="Alternar tema">
+          <i data-lucide="sun" id="theme-icon-sun" class="w-4 h-4 hidden"></i>
+          <i data-lucide="moon" id="theme-icon-moon" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 lg:px-8 py-8 space-y-8">
+
+    <!-- KPI Summary Cards (6 métricas essenciais incluindo Energia e Temperatura) -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      
+      <!-- Card Nós -->
+      <div class="glass p-4 rounded-2xl relative overflow-hidden group">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Nós do Cluster</p>
+            <h3 id="kpi-nodes" class="text-xl font-bold mt-1 text-slate-100">-- / --</h3>
+            <p id="kpi-nodes-sub" class="text-[11px] text-emerald-400 mt-1 flex items-center gap-1">
+              <i data-lucide="check-circle" class="w-3 h-3"></i> nós online
+            </p>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+            <i data-lucide="server" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-violet-500"></div>
+      </div>
+
+      <!-- Card GPUs -->
+      <div class="glass p-4 rounded-2xl relative overflow-hidden group">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">GPUs em Carga</p>
+            <h3 id="kpi-gpus" class="text-xl font-bold mt-1 text-slate-100">-- / --</h3>
+            <p id="kpi-gpus-sub" class="text-[11px] text-violet-400 mt-1 flex items-center gap-1">
+              <i data-lucide="zap" class="w-3 h-3"></i> aceleradores
+            </p>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center">
+            <i data-lucide="circuit-board" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 to-pink-500"></div>
+      </div>
+
+      <!-- Card Energia Total (Potência) -->
+      <div class="glass p-4 rounded-2xl relative overflow-hidden group">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Uso Energético</p>
+            <h3 id="kpi-power" class="text-xl font-bold mt-1 text-amber-400">-- kW</h3>
+            <p id="kpi-power-sub" class="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
+              <i data-lucide="activity" class="w-3 h-3 text-amber-400"></i> ~-- W / GPU
+            </p>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
+            <i data-lucide="zap" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-yellow-500"></div>
+      </div>
+
+      <!-- Card Temperatura Média -->
+      <div class="glass p-4 rounded-2xl relative overflow-hidden group">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Temperatura Média</p>
+            <h3 id="kpi-temp" class="text-xl font-bold mt-1 text-slate-100">-- °C</h3>
+            <p id="kpi-temp-sub" class="text-[11px] text-emerald-400 mt-1 flex items-center gap-1">
+              <i data-lucide="thermometer" class="w-3 h-3"></i> Térmica estável
+            </p>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center">
+            <i data-lucide="thermometer" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 to-red-500"></div>
+      </div>
+
+      <!-- Card Fila Slurm -->
+      <div class="glass p-4 rounded-2xl relative overflow-hidden group">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Fila Slurm</p>
+            <h3 id="kpi-jobs" class="text-xl font-bold mt-1 text-slate-100">-- rodando</h3>
+            <p id="kpi-jobs-pending" class="text-[11px] text-amber-400 mt-1 flex items-center gap-1">
+              <i data-lucide="hourglass" class="w-3 h-3"></i> -- pendentes
+            </p>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
+            <i data-lucide="list-ordered" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+      </div>
+
+      <!-- Card Jobs Lançados Hoje -->
+      <div class="glass p-4 rounded-2xl relative overflow-hidden group">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Lançados Hoje</p>
+            <h3 id="kpi-jobs-today" class="text-xl font-bold mt-1 text-slate-100">-- jobs</h3>
+            <p class="text-[11px] text-indigo-400 mt-1 flex items-center gap-1">
+              <i data-lucide="calendar" class="w-3 h-3"></i> jobs submetidos
+            </p>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-teal-500/10 text-teal-400 flex items-center justify-center">
+            <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 to-emerald-500"></div>
+      </div>
+
+    </section>
+
+    <!-- Seção de Análise Gráfica: Jobs Diários + Energia & Temperatura por Nó -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      
+      <!-- Gráfico 1: Jobs Lançados por Dia (CPU vs GPU) -->
+      <div class="glass rounded-2xl p-6 space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-bold tracking-tight flex items-center gap-2">
+              <i data-lucide="calendar" class="w-4 h-4 text-indigo-400"></i>
+              Jobs Lançados por Dia (Últimos 14 dias)
+            </h3>
+            <p class="text-xs text-slate-400">Distribuição diária de submissões divididas entre tarefas com CPU e GPU</p>
+          </div>
+          <span class="text-xs px-2.5 py-1 rounded-md bg-indigo-500/10 text-indigo-400 font-mono">Slurm sacct</span>
+        </div>
+        <div class="h-60 relative">
+          <canvas id="dailyJobsChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Gráfico 2: Energia (Watts) & Temperatura (°C) por Nodo -->
+      <div class="glass rounded-2xl p-6 space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-bold tracking-tight flex items-center gap-2">
+              <i data-lucide="flame" class="w-4 h-4 text-amber-400"></i>
+              Perfil Térmico e Energético por Nodo
+            </h3>
+            <p class="text-xs text-slate-400">Potência total consumida (W) e temperatura média das GPUs (°C)</p>
+          </div>
+          <span class="text-xs px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-400 font-mono">nvidia-smi</span>
+        </div>
+        <div class="h-60 relative">
+          <canvas id="nodeThermalPowerChart"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Seção de Nós (Matriz de Computação) -->
+    <section class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold tracking-tight flex items-center gap-2">
+            <i data-lucide="server" class="w-5 h-5 text-indigo-400"></i>
+            Estado dos Nodos de Computação
+          </h2>
+          <p class="text-xs text-slate-400">Status no Slurm, GPUs instaladas, telemetria térmica (°C) e potência (W)</p>
+        </div>
+
+        <!-- Filtros Rápidos -->
+        <div class="flex items-center gap-2">
+          <button onclick="filterNodes('all')" class="node-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white" data-filter="all">Todos</button>
+          <button onclick="filterNodes('alloc')" class="node-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700" data-filter="alloc">Alocados</button>
+          <button onclick="filterNodes('idle')" class="node-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700" data-filter="idle">Livres</button>
+          <button onclick="filterNodes('down')" class="node-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700" data-filter="down">Inativos</button>
+        </div>
+      </div>
+
+      <!-- Grid dos Nós -->
+      <div id="nodes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <!-- Renderizado dinamicamente via JS -->
+      </div>
+    </section>
+
+    <!-- Fila de Jobs Slurm, Armazenamento & Utilização -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Tabela da Fila do Slurm (2 colunas) -->
+      <div class="lg:col-span-2 glass rounded-2xl p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-bold tracking-tight flex items-center gap-2">
+              <i data-lucide="list-ordered" class="w-5 h-5 text-indigo-400"></i>
+              Fila de Execução do Slurm
+            </h2>
+            <p class="text-xs text-slate-400">Tarefas rodando e em espera pelos recursos do cluster</p>
+          </div>
+          <!-- Campo de Busca de Job / Usuário -->
+          <div class="relative">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
+            <input type="text" id="job-search" placeholder="Buscar job ou usuário..." 
+                   class="bg-slate-900 border border-slate-700 text-xs rounded-lg pl-9 pr-3 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-56" />
+          </div>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-800">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-900/80 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-800">
+              <tr>
+                <th class="py-3 px-4">Job ID</th>
+                <th class="py-3 px-4">Nome</th>
+                <th class="py-3 px-4">Usuário</th>
+                <th class="py-3 px-4">Estado</th>
+                <th class="py-3 px-4">Tempo</th>
+                <th class="py-3 px-4">Nós Alocados</th>
+              </tr>
+            </thead>
+            <tbody id="queue-table-body" class="divide-y divide-slate-800/60 font-mono">
+              <!-- Renderizado dinamicamente -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Armazenamento & Utilização Mensal (1 coluna) -->
+      <div class="space-y-6">
+        
+        <!-- Filesystem Disks -->
+        <div class="glass rounded-2xl p-6 space-y-4">
+          <h2 class="text-lg font-bold tracking-tight flex items-center gap-2">
+            <i data-lucide="hard-drive" class="w-5 h-5 text-indigo-400"></i>
+            Espaço em Disco
+          </h2>
+          <div id="filesystem-list" class="space-y-4">
+            <!-- Renderizado dinamicamente -->
+          </div>
+        </div>
+
+        <!-- Tendência de Utilização (Chart.js) -->
+        <div class="glass rounded-2xl p-6 space-y-3">
+          <h2 class="text-lg font-bold tracking-tight flex items-center gap-2">
+            <i data-lucide="trending-up" class="w-5 h-5 text-indigo-400"></i>
+            Utilização Geral (%)
+          </h2>
+          <p class="text-xs text-slate-400">Ocupação vs ociosidade média do cluster</p>
+          <div class="h-44 relative">
+            <canvas id="utilizationChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 mt-16 py-6 text-center text-xs text-slate-500">
+    <p>Cluster Apuana • Telemetria de Uso, Energia & Monitoramento de Nós • Exportado automaticamente para GitHub Pages</p>
+  </footer>
+
+  <!-- Lógica da Aplicação Web em Vanilla JS -->
+  <script>
+    let clusterData = {};
+    try {
+      const rawScript = document.getElementById('cluster-raw-data');
+      clusterData = JSON.parse(rawScript.textContent);
+    } catch (e) {
+      console.error("Erro ao carregar dados do cluster:", e);
+    }
+
+    let currentFilter = 'all';
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderSummary(clusterData);
+      renderNodes(clusterData.nodes, currentFilter);
+      renderQueue(clusterData.queue);
+      renderFilesystem(clusterData.filesystem);
+      renderCharts(clusterData);
+      
+      lucide.createIcons();
+      setupSearch();
+      setupThemeToggle();
+    });
+
+    function renderSummary(data) {
+      if (!data || !data.summary) return;
+      const s = data.summary;
+
+      document.getElementById('timestamp-updated').textContent = data.generated_at || 'Agora';
+      document.getElementById('kpi-nodes').textContent = `${s.active_nodes} / ${s.total_nodes}`;
+      document.getElementById('kpi-nodes-sub').innerHTML = s.down_nodes === 0
+        ? `<i data-lucide="check-circle" class="w-3 h-3 text-emerald-400"></i> Todos nós operacionais`
+        : `<i data-lucide="alert-triangle" class="w-3 h-3 text-amber-400"></i> ${s.down_nodes} nó(s) com atenção`;
+
+      document.getElementById('kpi-gpus').textContent = `${s.active_gpus} / ${s.total_gpus}`;
+      
+      // Energia e Temperatura
+      if (document.getElementById('kpi-power')) {
+        document.getElementById('kpi-power').textContent = `${s.total_power_kw || 0} kW`;
+        document.getElementById('kpi-power-sub').innerHTML = `<i data-lucide="activity" class="w-3 h-3 text-amber-400"></i> ~${s.avg_power_gpu_w || 0} W / GPU`;
+      }
+
+      if (document.getElementById('kpi-temp')) {
+        document.getElementById('kpi-temp').textContent = `${s.avg_temp_gpu_c || 0} °C`;
+        const tempColor = (s.avg_temp_gpu_c > 75) ? 'text-rose-400' : 'text-emerald-400';
+        document.getElementById('kpi-temp-sub').className = `text-[11px] ${tempColor} mt-1 flex items-center gap-1`;
+      }
+
+      document.getElementById('kpi-jobs').textContent = `${s.running_jobs} rodando`;
+      document.getElementById('kpi-jobs-pending').textContent = `${s.pending_jobs} na fila (pendentes)`;
+
+      if (document.getElementById('kpi-jobs-today')) {
+        document.getElementById('kpi-jobs-today').textContent = `${s.jobs_today || 0} jobs`;
+      }
+    }
+
+    function renderNodes(nodes, filter) {
+      const container = document.getElementById('nodes-grid');
+      container.innerHTML = '';
+
+      if (!nodes || nodes.length === 0) {
+        container.innerHTML = '<div class="col-span-full text-center py-8 text-slate-500">Nenhum nó registrado.</div>';
+        return;
+      }
+
+      nodes.forEach(node => {
+        const isAlloc = node.status_color === 'blue';
+        const isIdle = node.status_color === 'emerald';
+        const isDown = node.status_color === 'rose';
+
+        if (filter === 'alloc' && !isAlloc) return;
+        if (filter === 'idle' && !isIdle) return;
+        if (filter === 'down' && !isDown) return;
+
+        let badgeBg = 'bg-slate-800 text-slate-300';
+        let dotColor = 'bg-slate-400';
+        if (isIdle) { badgeBg = 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'; dotColor = 'bg-emerald-400'; }
+        if (isAlloc) { badgeBg = 'bg-blue-500/10 text-blue-400 border border-blue-500/20'; dotColor = 'bg-blue-400'; }
+        if (isDown) { badgeBg = 'bg-rose-500/10 text-rose-400 border border-rose-500/20'; dotColor = 'bg-rose-400'; }
+
+        // GPUs do nó com indicação clara de VRAM, Temperatura e Watts
+        let gpusHtml = '';
+        if (node.gpus && node.gpus.length > 0) {
+          gpusHtml = `
+            <div class="mt-4 pt-3 border-t border-slate-800/80 space-y-2">
+              <div class="text-[11px] font-medium text-slate-400 flex items-center justify-between">
+                <span>GPUs (${node.gpus.length})</span>
+                <span class="text-[10px] text-slate-500">VRAM • Temp • Watts</span>
+              </div>
+              <div class="space-y-1.5">
+                ${node.gpus.map((gpu, idx) => {
+                  const tempBadge = gpu.temperature > 75 
+                    ? 'text-rose-400 font-semibold' 
+                    : (gpu.temperature > 60 ? 'text-amber-400' : 'text-emerald-400');
+                  const powerBadge = gpu.power_watts ? `${Math.round(gpu.power_watts)}W` : '';
+                  return `
+                  <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800 text-[11px]">
+                    <div class="flex justify-between items-center mb-1">
+                      <span class="font-medium text-slate-300 truncate max-w-[110px]" title="${gpu.name}">GPU ${idx}</span>
+                      <span class="text-slate-400 flex items-center gap-1 font-mono text-[10px]">
+                        <span class="${tempBadge}">${gpu.temperature}°C</span>
+                        ${powerBadge ? `<span class="text-slate-600">•</span><span class="text-amber-400/90">${powerBadge}</span>` : ''}
+                        <span class="text-slate-600">•</span>
+                        <span>${Math.round(gpu.memory_used / 1024)}GB</span>
+                      </span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                      <div class="h-full rounded-full ${gpu.memory_percent > 85 ? 'bg-amber-500' : 'bg-indigo-500'}" style="width: ${gpu.memory_percent}%"></div>
+                    </div>
+                  </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `;
+        } else {
+          gpusHtml = `
+            <div class="mt-4 pt-3 border-t border-slate-800/80 text-[11px] text-slate-500 flex items-center gap-1">
+              <i data-lucide="info" class="w-3.5 h-3.5"></i> Sem GPUs ou nó offline
+            </div>
+          `;
+        }
+
+        const card = document.createElement('div');
+        card.className = "glass p-4 rounded-xl border border-slate-800/80 hover:border-slate-700 transition-all flex flex-col justify-between";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-sm tracking-tight text-slate-200">${node.hostname}</span>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium ${badgeBg}">
+                <span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>
+                ${node.status_label}
+              </span>
+            </div>
+            ${gpusHtml}
+          </div>
+          <div class="mt-3 pt-2 text-[10px] text-slate-500 flex items-center justify-between">
+            <span>Último sync:</span>
+            <span>${node.last_updated.split(' ')[1] || node.last_updated}</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    function filterNodes(type) {
+      currentFilter = type;
+      document.querySelectorAll('.node-filter-btn').forEach(btn => {
+        if (btn.dataset.filter === type) {
+          btn.className = "node-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white";
+        } else {
+          btn.className = "node-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700";
+        }
+      });
+      renderNodes(clusterData.nodes, currentFilter);
+    }
+
+    function renderQueue(queue, searchQuery = '') {
+      const tbody = document.getElementById('queue-table-body');
+      tbody.innerHTML = '';
+
+      if (!queue || queue.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-500">Nenhum job na fila no momento.</td></tr>';
+        return;
+      }
+
+      const filtered = queue.filter(job => {
+        if (!searchQuery) return true;
+        const q = searchQuery.toLowerCase();
+        return (
+          String(job.jobid).includes(q) ||
+          (job.user && job.user.toLowerCase().includes(q)) ||
+          (job.name && job.name.toLowerCase().includes(q))
+        );
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-500">Nenhum job corresponde à busca.</td></tr>';
+        return;
+      }
+
+      filtered.forEach(job => {
+        const isRunning = job.state === 'RUNNING';
+        const badgeColor = isRunning 
+          ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' 
+          : 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-900/50 transition-colors";
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-semibold text-slate-200">${job.jobid}</td>
+          <td class="py-3 px-4 text-slate-300 max-w-[160px] truncate" title="${job.name}">${job.name}</td>
+          <td class="py-3 px-4 text-indigo-300 font-medium">${job.user}</td>
+          <td class="py-3 px-4">
+            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium ${badgeColor}">
+              ${job.state}
+            </span>
+          </td>
+          <td class="py-3 px-4 text-slate-400">${job.time}</td>
+          <td class="py-3 px-4 text-slate-400">${job.nodelist}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderFilesystem(fsList) {
+      const container = document.getElementById('filesystem-list');
+      container.innerHTML = '';
+
+      if (!fsList || fsList.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-500">Sem dados de disco disponíveis.</p>';
+        return;
+      }
+
+      fsList.forEach(fs => {
+        let barColor = 'bg-indigo-500';
+        if (fs.usepercent > 85) barColor = 'bg-amber-500';
+        if (fs.usepercent > 95) barColor = 'bg-rose-500';
+
+        const item = document.createElement('div');
+        item.className = "space-y-1.5";
+        item.innerHTML = `
+          <div class="flex justify-between text-xs">
+            <span class="font-medium text-slate-300 font-mono">${fs.mounted}</span>
+            <span class="text-slate-400">${fs.used} / ${fs.size} (${fs.usepercent}%)</span>
+          </div>
+          <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+            <div class="h-full ${barColor} rounded-full transition-all duration-500" style="width: ${fs.usepercent}%"></div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function renderCharts(data) {
+      // 1. Gráfico de Jobs Diários (CPU vs GPU)
+      if (data.daily_jobs_history && data.daily_jobs_history.labels && data.daily_jobs_history.labels.length > 0) {
+        const dj = data.daily_jobs_history;
+        const ctxDaily = document.getElementById('dailyJobsChart').getContext('2d');
+        new Chart(ctxDaily, {
+          type: 'bar',
+          data: {
+            labels: dj.labels,
+            datasets: [
+              {
+                label: 'Jobs GPU',
+                data: dj.gpu_jobs,
+                backgroundColor: '#8b5cf6',
+                borderRadius: 4
+              },
+              {
+                label: 'Jobs CPU',
+                data: dj.cpu_jobs,
+                backgroundColor: '#38bdf8',
+                borderRadius: 4
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { stacked: true, grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } },
+              y: { stacked: true, beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b', font: { size: 10 } } }
+            },
+            plugins: {
+              legend: { position: 'top', labels: { color: '#94a3b8', font: { size: 10 } } }
+            }
+          }
+        });
+      }
+
+      // 2. Gráfico de Perfil Térmico e Energético por Nodo
+      if (data.nodes_power_temp && data.nodes_power_temp.labels && data.nodes_power_temp.labels.length > 0) {
+        const npt = data.nodes_power_temp;
+        const ctxThermal = document.getElementById('nodeThermalPowerChart').getContext('2d');
+        new Chart(ctxThermal, {
+          data: {
+            labels: npt.labels,
+            datasets: [
+              {
+                type: 'bar',
+                label: 'Potência Total (Watts)',
+                data: npt.power_watts,
+                backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                yAxisID: 'yPower',
+                borderRadius: 4
+              },
+              {
+                type: 'line',
+                label: 'Temp. Média (°C)',
+                data: npt.avg_temp,
+                borderColor: '#f43f5e',
+                backgroundColor: '#f43f5e',
+                borderWidth: 2,
+                pointRadius: 3,
+                yAxisID: 'yTemp'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } },
+              yPower: {
+                type: 'linear',
+                position: 'left',
+                beginAtZero: true,
+                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                ticks: { color: '#f59e0b', font: { size: 10 } },
+                title: { display: true, text: 'Watts (W)', color: '#f59e0b', font: { size: 10 } }
+              },
+              yTemp: {
+                type: 'linear',
+                position: 'right',
+                beginAtZero: true,
+                max: 100,
+                grid: { display: false },
+                ticks: { color: '#f43f5e', font: { size: 10 } },
+                title: { display: true, text: 'Temp (°C)', color: '#f43f5e', font: { size: 10 } }
+              }
+            },
+            plugins: {
+              legend: { position: 'top', labels: { color: '#94a3b8', font: { size: 10 } } }
+            }
+          }
+        });
+      }
+
+      // 3. Gráfico de Histórico de Ocupação/Ociosidade
+      if (data.utilization_history && data.utilization_history.labels && data.utilization_history.labels.length > 0) {
+        const ctxUtil = document.getElementById('utilizationChart').getContext('2d');
+        new Chart(ctxUtil, {
+          type: 'line',
+          data: {
+            labels: data.utilization_history.labels,
+            datasets: [
+              {
+                label: 'Ocupação (%)',
+                data: data.utilization_history.occupation,
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                tension: 0.3,
+                fill: true,
+                borderWidth: 2
+              },
+              {
+                label: 'Ociosidade (%)',
+                data: data.utilization_history.idle,
+                borderColor: '#38bdf8',
+                backgroundColor: 'transparent',
+                tension: 0.3,
+                borderWidth: 2,
+                borderDash: [4, 4]
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: true, position: 'top', labels: { color: '#94a3b8', font: { size: 10 } } }
+            },
+            scales: {
+              y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b', font: { size: 10 } } },
+              x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } }
+            }
+          }
+        });
+      }
+    }
+
+    function setupSearch() {
+      const input = document.getElementById('job-search');
+      input.addEventListener('input', (e) => {
+        renderQueue(clusterData.queue, e.target.value);
+      });
+    }
+
+    function setupThemeToggle() {
+      const toggle = document.getElementById('theme-toggle');
+      const sun = document.getElementById('theme-icon-sun');
+      const moon = document.getElementById('theme-icon-moon');
+
+      toggle.addEventListener('click', () => {
+        const html = document.documentElement;
+        if (html.classList.contains('dark')) {
+          html.classList.remove('dark');
+          html.classList.add('light');
+          sun.classList.remove('hidden');
+          moon.classList.add('hidden');
+        } else {
+          html.classList.remove('light');
+          html.classList.add('dark');
+          sun.classList.add('hidden');
+          moon.classList.remove('hidden');
+        }
+      });
+    }
+  </script>
+</body>
+</html>
